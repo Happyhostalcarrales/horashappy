@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Horario Happy Hostal Carrales - Sistema de Registro de Empleados</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+        }
+        
+        .time-display {
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .status-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .clock-container {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 
+                20px 20px 60px #d9d9d9,
+                -20px -20px 60px #ffffff;
+        }
+        
+        .employee-card {
+            background: white;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .nav-pill {
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-pill.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .table-modern {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .input-modern {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-modern:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-full">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white bg-opacity-20 p-3 rounded-full">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Control Horario Happy Hostal Carrales</h1>
+                        <p class="text-sm opacity-90">Sistema de registro conforme a normativa española</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div id="currentTime" class="text-lg font-bold time-display"></div>
+                        <div id="currentDate" class="text-sm opacity-90"></div>
+                    </div>
+                    <button id="logoutBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-full transition-all">
+                        Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center py-12 px-4">
+        <div class="max-w-md w-full">
+            <div class="bg-white rounded-2xl card-shadow p-8 fade-in">
+                <div class="text-center mb-8">
+                    <div class="gradient-bg w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-900">Acceso al Sistema</h2>
+                    <p class="text-gray-600 mt-2">Seleccione su tipo de usuario</p>
+                </div>
+                
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Tipo de Usuario</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" id="adminBtn" class="user-type-btn p-4 border-2 border-gray-200 rounded-xl text-center hover:border-purple-500 transition-all">
+                                <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                </svg>
+                                <div class="font-medium">Administrador</div>
+                            </button>
+                            <button type="button" id="employeeBtn" class="user-type-btn p-4 border-2 border-gray-200 rounded-xl text-center hover:border-purple-500 transition-all">
+                                <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                                </svg>
+                                <div class="font-medium">Empleado</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="adminLogin" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Contraseña de Administrador</label>
+                        <input type="password" id="adminPassword" class="input-modern w-full" placeholder="Ingrese su contraseña">
+                    </div>
+
+                    <div id="employeeLogin" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Código de Empleado</label>
+                        <input type="password" id="employeeCode" class="input-modern w-full text-center text-2xl tracking-widest" placeholder="••••" maxlength="4">
+                        <p class="text-xs text-gray-500 mt-2 text-center">Ingrese su código de 4 dígitos</p>
+                    </div>
+
+                    <button type="submit" class="w-full btn-primary text-white font-bold py-3 px-6 rounded-xl">
+                        Iniciar Sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex space-x-2 py-4">
+                    <button class="nav-tab nav-pill active" data-tab="dashboard">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        Panel Principal
+                    </button>
+                    <button class="nav-tab nav-pill" data-tab="timetracking">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                        </svg>
+                        Fichajes
+                    </button>
+                    <button class="nav-tab nav-pill" data-tab="employees">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                        </svg>
+                        Empleados
+                    </button>
+                    <button class="nav-tab nav-pill" data-tab="reports">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+                        </svg>
+                        Informes
+                    </button>
+                    <button class="nav-tab nav-pill" data-tab="inspection">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                        </svg>
+                        Horas Empleados
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Tab Contents -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- Dashboard Tab -->
+            <div id="dashboardTab" class="tab-content fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Clock Widget -->
+                    <div class="lg:col-span-1">
+                        <div class="clock-container text-center">
+                            <h3 class="text-xl font-bold text-gray-800 mb-6">Reloj de Fichaje</h3>
+                            <div id="mainClock" class="text-4xl font-bold text-purple-600 mb-2 time-display"></div>
+                            <div id="mainDate" class="text-gray-600 mb-6"></div>
+                            
+                            <div id="employeeClockSection" class="space-y-4">
+                                <select id="clockEmployeeSelect" class="input-modern w-full">
+                                    <option value="">Seleccionar empleado</option>
+                                </select>
+                                
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button id="clockInBtn" class="btn-success text-white font-bold py-3 px-4 rounded-xl">
+                                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414-1.414L9 5.586 7.707 4.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 00-1.414-1.414L9 5.586z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Entrada
+                                    </button>
+                                    <button id="clockOutBtn" class="btn-danger text-white font-bold py-3 px-4 rounded-xl">
+                                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414-1.414L9 5.586 7.707 4.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 00-1.414-1.414L9 5.586z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Salida
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Today's Summary -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-2xl card-shadow p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-6">Resumen de Hoy</h3>
+                            <div id="todaySummary" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- Summary cards will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="mt-8 bg-white rounded-2xl card-shadow p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Actividad Reciente</h3>
+                        <button id="refreshActivity" class="btn-primary text-white px-4 py-2 rounded-lg text-sm">
+                            Actualizar
+                        </button>
+                    </div>
+                    <div id="recentActivity" class="space-y-3">
+                        <!-- Recent activity will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Tracking Tab -->
+            <div id="timetrackingTab" class="tab-content hidden">
+                <div class="bg-white rounded-2xl card-shadow p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Registros de Tiempo</h3>
+                        <button id="addManualRecord" class="btn-primary text-white px-4 py-2 rounded-lg">
+                            + Registro Manual
+                        </button>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+                        <select id="filterEmployee" class="input-modern">
+                            <option value="">Todos los empleados</option>
+                        </select>
+                        <input type="date" id="filterStartDate" class="input-modern">
+                        <input type="date" id="filterEndDate" class="input-modern">
+                        <button id="applyFilters" class="btn-primary text-white px-4 py-2 rounded-lg">
+                            Filtrar
+                        </button>
+                        <button onclick="clearFilters()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            Limpiar
+                        </button>
+                        <button onclick="exportRecords()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            📊 Exportar
+                        </button>
+                    </div>
+
+                    <!-- Records Table -->
+                    <div class="table-modern overflow-hidden">
+                        <table class="min-w-full">
+                            <thead class="gradient-bg text-white">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Empleado</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Fecha</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Entrada</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Salida</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Total Horas</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Estado</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timeRecordsTable" class="divide-y divide-gray-200">
+                                <!-- Records will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employees Tab -->
+            <div id="employeesTab" class="tab-content hidden">
+                <div class="bg-white rounded-2xl card-shadow p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Gestión de Empleados</h3>
+                        <button id="addEmployeeBtn" class="btn-primary text-white px-4 py-2 rounded-lg">
+                            + Nuevo Empleado
+                        </button>
+                    </div>
+
+                    <div id="employeesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Employee cards will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reportsTab" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Report Generator -->
+                    <div class="bg-white rounded-2xl card-shadow p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">Generar Informe</h3>
+                        <form id="reportForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Empleado</label>
+                                <select id="reportEmployee" class="input-modern w-full">
+                                    <option value="">Todos los empleados</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha Inicio</label>
+                                    <input type="date" id="reportStartDate" class="input-modern w-full">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha Fin</label>
+                                    <input type="date" id="reportEndDate" class="input-modern w-full">
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full btn-primary text-white font-bold py-3 px-6 rounded-xl">
+                                Generar Informe
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="bg-white rounded-2xl card-shadow p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">Estadísticas Rápidas</h3>
+                        <div id="quickStats" class="space-y-4">
+                            <!-- Stats will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Results -->
+                <div class="mt-8 bg-white rounded-2xl card-shadow p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Resultados del Informe</h3>
+                    <div id="reportResults">
+                        <p class="text-gray-500 text-center py-12">Genere un informe para ver los resultados aquí</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inspection Tab -->
+            <div id="inspectionTab" class="tab-content hidden">
+                <div class="bg-white rounded-2xl card-shadow p-6">
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">⏰ Horas de Empleados</h3>
+                        <p class="text-gray-600 mt-1">Resumen de horas trabajadas por empleado</p>
+                    </div>
+
+                    <!-- Employee List -->
+                    <div id="inspectionEmployeesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Employee cards will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Employee Modal -->
+    <div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full slide-up">
+            <div class="gradient-bg text-white p-6 rounded-t-2xl">
+                <h3 class="text-xl font-bold">Nuevo Empleado</h3>
+            </div>
+            <form id="employeeForm" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre *</label>
+                    <input type="text" id="employeeName" required class="input-modern w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Apellidos *</label>
+                    <input type="text" id="employeeLastName" required class="input-modern w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">DNI/NIE *</label>
+                    <input type="text" id="employeeDNI" required class="input-modern w-full" placeholder="12345678A">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Puesto</label>
+                    <input type="text" id="employeePosition" class="input-modern w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha de Alta</label>
+                    <input type="date" id="employeeStartDate" class="input-modern w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Código de Acceso *</label>
+                    <input type="text" id="employeeAccessCode" required class="input-modern w-full text-center text-lg tracking-widest" placeholder="1234" maxlength="4" pattern="[0-9]{4}">
+                    <p class="text-xs text-gray-500 mt-1">Código de 4 dígitos para el empleado</p>
+                </div>
+            </form>
+            <div class="p-6 border-t flex justify-end space-x-3">
+                <button id="cancelEmployee" class="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                    Cancelar
+                </button>
+                <button id="saveEmployee" class="btn-primary text-white px-6 py-2 rounded-lg">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Record Modal -->
+    <div id="recordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full slide-up">
+            <div class="gradient-bg text-white p-6 rounded-t-2xl">
+                <h3 class="text-xl font-bold">Registro Manual</h3>
+            </div>
+            <form id="recordForm" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Empleado *</label>
+                    <select id="recordEmployee" required class="input-modern w-full">
+                        <option value="">Seleccionar empleado</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha *</label>
+                    <input type="date" id="recordDate" required class="input-modern w-full">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Entrada</label>
+                        <input type="time" id="recordTimeIn" class="input-modern w-full">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Salida</label>
+                        <input type="time" id="recordTimeOut" class="input-modern w-full">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Observaciones</label>
+                    <textarea id="recordNotes" class="input-modern w-full" rows="3"></textarea>
+                </div>
+            </form>
+            <div class="p-6 border-t flex justify-end space-x-3">
+                <button id="cancelRecord" class="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                    Cancelar
+                </button>
+                <button id="saveRecord" class="btn-primary text-white px-6 py-2 rounded-lg">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let currentUser = null;
+        let employees = JSON.parse(localStorage.getItem('employees')) || [];
+        let timeRecords = JSON.parse(localStorage.getItem('timeRecords')) || [];
+        let selectedUserType = null;
+
+        // Initialize sample data
+        if (employees.length === 0) {
+            employees = [
+                {
+                    id: 1,
+                    name: 'Ana',
+                    lastName: 'García Martínez',
+                    dni: '12345678A',
+                    position: 'Desarrolladora Senior',
+                    startDate: '2024-01-15',
+                    status: 'Activo',
+                    avatar: 'AG',
+                    accessCode: '1234'
+                },
+                {
+                    id: 2,
+                    name: 'Carlos',
+                    lastName: 'López Rodríguez',
+                    dni: '87654321B',
+                    position: 'Diseñador UX/UI',
+                    startDate: '2024-02-01',
+                    status: 'Activo',
+                    avatar: 'CL',
+                    accessCode: '5678'
+                },
+                {
+                    id: 3,
+                    name: 'María',
+                    lastName: 'Fernández Silva',
+                    dni: '11223344C',
+                    position: 'Project Manager',
+                    startDate: '2024-01-20',
+                    status: 'Activo',
+                    avatar: 'MF',
+                    accessCode: '9012'
+                }
+            ];
+            saveEmployees();
+        }
+
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const mainApp = document.getElementById('mainApp');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            populateSelects();
+            setupEventListeners();
+            setDefaultDates();
+        });
+
+        function updateDateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('es-ES');
+            const dateStr = now.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            document.getElementById('currentTime').textContent = timeStr;
+            document.getElementById('currentDate').textContent = dateStr;
+            document.getElementById('mainClock').textContent = timeStr;
+            document.getElementById('mainDate').textContent = dateStr;
+        }
+
+        function setupEventListeners() {
+            // Login
+            document.getElementById('adminBtn').addEventListener('click', () => selectUserType('admin'));
+            document.getElementById('employeeBtn').addEventListener('click', () => selectUserType('employee'));
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+            // Navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+            });
+
+
+
+            // Clock actions
+            document.getElementById('clockInBtn').addEventListener('click', () => clockAction('in'));
+            document.getElementById('clockOutBtn').addEventListener('click', () => clockAction('out'));
+
+            // Employee management
+            document.getElementById('addEmployeeBtn').addEventListener('click', showEmployeeModal);
+            document.getElementById('saveEmployee').addEventListener('click', saveEmployee);
+            document.getElementById('cancelEmployee').addEventListener('click', hideEmployeeModal);
+
+            // Manual records
+            document.getElementById('addManualRecord').addEventListener('click', showRecordModal);
+            document.getElementById('saveRecord').addEventListener('click', saveManualRecord);
+            document.getElementById('cancelRecord').addEventListener('click', hideRecordModal);
+
+            // Reports
+            document.getElementById('reportForm').addEventListener('submit', generateReport);
+
+            // Filters
+            document.getElementById('applyFilters').addEventListener('click', applyFilters);
+
+            // Refresh
+            document.getElementById('refreshActivity').addEventListener('click', loadDashboard);
+
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+        }
+
+        function selectUserType(type) {
+            selectedUserType = type;
+            
+            // Update button styles
+            document.querySelectorAll('.user-type-btn').forEach(btn => {
+                btn.classList.remove('border-purple-500', 'bg-purple-50');
+                btn.classList.add('border-gray-200');
+            });
+
+            if (type === 'admin') {
+                document.getElementById('adminBtn').classList.add('border-purple-500', 'bg-purple-50');
+                document.getElementById('adminLogin').classList.remove('hidden');
+                document.getElementById('employeeLogin').classList.add('hidden');
+            } else {
+                document.getElementById('employeeBtn').classList.add('border-purple-500', 'bg-purple-50');
+                document.getElementById('employeeLogin').classList.remove('hidden');
+                document.getElementById('adminLogin').classList.add('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            if (selectedUserType === 'admin') {
+                const password = document.getElementById('adminPassword').value;
+                if (password === 'admin123') {
+                    currentUser = { type: 'admin', name: 'Administrador' };
+                    showMainApp();
+                } else {
+                    showNotification('Contraseña incorrecta', 'error');
+                }
+            } else if (selectedUserType === 'employee') {
+                const employeeCode = document.getElementById('employeeCode').value;
+                if (employeeCode) {
+                    const employee = employees.find(emp => emp.accessCode === employeeCode && emp.status === 'Activo');
+                    if (employee) {
+                        currentUser = { type: 'employee', ...employee };
+                        showMainApp();
+                    } else {
+                        showNotification('Código incorrecto o empleado inactivo', 'error');
+                        document.getElementById('employeeCode').value = '';
+                    }
+                } else {
+                    showNotification('Ingrese su código de empleado', 'error');
+                }
+            } else {
+                showNotification('Seleccione un tipo de usuario', 'error');
+            }
+        }
+
+        function showMainApp() {
+            loginScreen.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+            
+            if (currentUser.type === 'employee') {
+                // Hide admin-only tabs
+                document.querySelector('[data-tab="employees"]').style.display = 'none';
+                document.querySelector('[data-tab="reports"]').style.display = 'none';
+                
+                // Hide admin-only buttons
+                document.getElementById('addManualRecord').style.display = 'none';
+                
+                // Set employee in clock and disable selection
+                document.getElementById('clockEmployeeSelect').value = currentUser.id;
+                document.getElementById('clockEmployeeSelect').disabled = true;
+                
+                // Hide filter controls for employees
+                document.getElementById('filterEmployee').closest('.grid').style.display = 'none';
+            }
+            
+            loadDashboard();
+            loadTimeRecords();
+            loadEmployees();
+        }
+
+        function switchTab(tabName) {
+            // Update navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Show/hide content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+            document.getElementById(`${tabName}Tab`).classList.add('fade-in');
+
+            // Load specific content
+            if (tabName === 'dashboard') loadDashboard();
+            if (tabName === 'timetracking') loadTimeRecords();
+            if (tabName === 'employees') loadEmployees();
+            if (tabName === 'reports') loadReports();
+            if (tabName === 'inspection') loadInspection();
+        }
+
+        function loadDashboard() {
+            loadTodaySummary();
+            loadRecentActivity();
+        }
+
+        function loadTodaySummary() {
+            const today = formatDate(new Date());
+            
+            if (currentUser.type === 'employee') {
+                // Show only employee's own data
+                const myRecord = timeRecords.find(record => 
+                    record.date === today && record.employeeId === currentUser.id
+                );
+                
+                const myHours = myRecord ? (myRecord.totalHours || 0) : 0;
+                const status = myRecord ? (myRecord.timeOut ? 'Completado' : 'En curso') : 'Sin fichar';
+                const timeIn = myRecord ? myRecord.timeIn : '-';
+                
+                document.getElementById('todaySummary').innerHTML = `
+                    <div class="bg-blue-50 p-4 rounded-xl text-center">
+                        <div class="text-2xl font-bold text-blue-600">${timeIn}</div>
+                        <div class="text-sm text-gray-600">Hora Entrada</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-xl text-center">
+                        <div class="text-2xl font-bold text-green-600">${status}</div>
+                        <div class="text-sm text-gray-600">Estado Hoy</div>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-xl text-center">
+                        <div class="text-2xl font-bold text-purple-600">${myHours.toFixed(1)}h</div>
+                        <div class="text-sm text-gray-600">Horas Trabajadas</div>
+                    </div>
+                `;
+            } else {
+                // Admin view - show general statistics
+                const todayRecords = timeRecords.filter(record => record.date === today);
+                
+                const totalEmployees = employees.filter(emp => emp.status === 'Activo').length;
+                const presentToday = todayRecords.filter(record => record.timeIn).length;
+                const totalHours = todayRecords.reduce((sum, record) => sum + (record.totalHours || 0), 0);
+
+                document.getElementById('todaySummary').innerHTML = `
+                    <div class="bg-blue-50 p-4 rounded-xl text-center">
+                        <div class="text-2xl font-bold text-blue-600">${totalEmployees}</div>
+                        <div class="text-sm text-gray-600">Empleados Activos</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-xl text-center">
+                        <div class="text-2xl font-bold text-green-600">${presentToday}</div>
+                        <div class="text-sm text-gray-600">Presentes Hoy</div>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-xl text-center">
+                        <div class="text-2xl font-bold text-purple-600">${totalHours.toFixed(1)}h</div>
+                        <div class="text-sm text-gray-600">Horas Trabajadas</div>
+                    </div>
+                `;
+            }
+        }
+
+        function loadRecentActivity() {
+            let recentRecords = timeRecords
+                .sort((a, b) => new Date(b.date + ' ' + (b.timeOut || b.timeIn || '00:00')) - new Date(a.date + ' ' + (a.timeOut || a.timeIn || '00:00')));
+            
+            // If employee, only show their own records
+            if (currentUser.type === 'employee') {
+                recentRecords = recentRecords.filter(record => record.employeeId === currentUser.id);
+            }
+            
+            recentRecords = recentRecords.slice(0, 5);
+
+            document.getElementById('recentActivity').innerHTML = recentRecords.map(record => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-bold text-purple-600">${getEmployeeAvatar(record.employeeId)}</span>
+                        </div>
+                        <div>
+                            <div class="font-medium">${record.employeeName}</div>
+                            <div class="text-sm text-gray-600">${formatDateDisplay(record.date)}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-medium">${record.timeIn || '-'} - ${record.timeOut || 'En curso'}</div>
+                        <div class="text-xs text-gray-500">${record.totalHours ? record.totalHours + 'h' : ''}</div>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-gray-500 text-center py-8">No hay actividad reciente</p>';
+        }
+
+        function clockAction(type) {
+            const employeeId = document.getElementById('clockEmployeeSelect').value;
+            if (!employeeId) {
+                showNotification('Seleccione un empleado', 'error');
+                return;
+            }
+
+            const employee = employees.find(emp => emp.id == employeeId);
+            const now = new Date();
+            const today = formatDate(now);
+            
+            let existingRecord = timeRecords.find(record => 
+                record.employeeId == employeeId && record.date === today
+            );
+
+            if (type === 'in') {
+                if (existingRecord && existingRecord.timeIn) {
+                    showNotification('Ya hay un registro de entrada para hoy', 'error');
+                    return;
+                }
+                
+                if (!existingRecord) {
+                    existingRecord = {
+                        id: Date.now(),
+                        employeeId: parseInt(employeeId),
+                        employeeName: `${employee.name} ${employee.lastName}`,
+                        date: today,
+                        timeIn: now.toTimeString().slice(0, 5),
+                        timeOut: null,
+                        totalHours: 0,
+                        notes: ''
+                    };
+                    timeRecords.push(existingRecord);
+                } else {
+                    existingRecord.timeIn = now.toTimeString().slice(0, 5);
+                }
+                
+                showNotification(`✅ Entrada registrada: ${existingRecord.timeIn}`, 'success');
+            } else {
+                if (!existingRecord || !existingRecord.timeIn) {
+                    showNotification('No hay registro de entrada para hoy', 'error');
+                    return;
+                }
+                
+                if (existingRecord.timeOut) {
+                    showNotification('Ya hay un registro de salida para hoy', 'error');
+                    return;
+                }
+                
+                existingRecord.timeOut = now.toTimeString().slice(0, 5);
+                existingRecord.totalHours = calculateHours(existingRecord.timeIn, existingRecord.timeOut);
+                
+                showNotification(`🏁 Salida registrada: ${existingRecord.timeOut}`, 'success');
+            }
+
+            saveTimeRecords();
+            loadDashboard();
+            loadTimeRecords();
+        }
+
+        function loadTimeRecords() {
+            const tbody = document.getElementById('timeRecordsTable');
+            if (!tbody) return;
+
+            let filteredRecords = getFilteredRecords();
+            
+            // If employee, only show their own records
+            if (currentUser.type === 'employee') {
+                filteredRecords = filteredRecords.filter(record => record.employeeId === currentUser.id);
+            }
+            
+            filteredRecords = filteredRecords.slice(0, 100);
+
+            tbody.innerHTML = filteredRecords.map(record => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                <span class="text-xs font-bold text-purple-600">${getEmployeeAvatar(record.employeeId)}</span>
+                            </div>
+                            <span class="font-medium">${record.employeeName}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm">${formatDateDisplay(record.date)}</td>
+                    <td class="px-6 py-4 text-sm font-mono">${record.timeIn || '-'}</td>
+                    <td class="px-6 py-4 text-sm font-mono">${record.timeOut || '-'}</td>
+                    <td class="px-6 py-4 text-sm font-bold">${record.totalHours ? record.totalHours + 'h' : '-'}</td>
+                    <td class="px-6 py-4">
+                        <span class="status-badge px-2 py-1 text-xs rounded-full ${getStatusClass(record)}">
+                            ${getStatusText(record)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${currentUser.type === 'admin' ? `
+                            <button onclick="editRecord(${record.id})" class="text-blue-600 hover:text-blue-800 mr-2">Editar</button>
+                            <button onclick="deleteRecord(${record.id})" class="text-red-600 hover:text-red-800">Eliminar</button>
+                        ` : '-'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadEmployees() {
+            const container = document.getElementById('employeesGrid');
+            if (!container) return;
+
+            container.innerHTML = employees.map(employee => `
+                <div class="employee-card p-6">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold">${employee.avatar || employee.name.charAt(0) + employee.lastName.charAt(0)}</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">${employee.name} ${employee.lastName}</h4>
+                            <p class="text-sm text-gray-600">${employee.position}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">DNI/NIE:</span>
+                            <span class="font-medium">${employee.dni}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Código:</span>
+                            <span class="font-mono font-bold text-purple-600">${employee.accessCode || '----'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Fecha Alta:</span>
+                            <span class="font-medium">${formatDateDisplay(employee.startDate)}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Estado:</span>
+                            <span class="px-2 py-1 text-xs rounded-full ${employee.status === 'Activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                ${employee.status}
+                            </span>
+                        </div>
+                    </div>
+                    ${currentUser.type === 'admin' ? `
+                        <div class="mt-4 flex space-x-2">
+                            <button onclick="editEmployee(${employee.id})" class="flex-1 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Editar
+                            </button>
+                            <button onclick="toggleEmployeeStatus(${employee.id})" class="flex-1 text-yellow-600 hover:text-yellow-800 text-sm font-medium">
+                                ${employee.status === 'Activo' ? 'Desactivar' : 'Activar'}
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function showEmployeeModal() {
+            document.getElementById('employeeModal').classList.remove('hidden');
+            document.getElementById('employeeModal').classList.add('flex');
+            
+            if (!editingEmployeeId) {
+                document.getElementById('employeeStartDate').value = formatDate(new Date());
+                document.querySelector('#employeeModal .gradient-bg h3').textContent = 'Nuevo Empleado';
+            }
+        }
+
+        function hideEmployeeModal() {
+            document.getElementById('employeeModal').classList.add('hidden');
+            document.getElementById('employeeModal').classList.remove('flex');
+            document.getElementById('employeeForm').reset();
+            editingEmployeeId = null;
+            document.querySelector('#employeeModal .gradient-bg h3').textContent = 'Nuevo Empleado';
+        }
+
+        function saveEmployee() {
+            const name = document.getElementById('employeeName').value.trim();
+            const lastName = document.getElementById('employeeLastName').value.trim();
+            const dni = document.getElementById('employeeDNI').value.trim();
+            const accessCode = document.getElementById('employeeAccessCode').value.trim();
+            
+            if (!name || !lastName || !dni || !accessCode) {
+                showNotification('Complete los campos obligatorios', 'error');
+                return;
+            }
+
+            // Validate access code format
+            if (!/^\d{4}$/.test(accessCode)) {
+                showNotification('El código debe tener exactamente 4 dígitos', 'error');
+                return;
+            }
+
+            // Check for duplicate DNI (excluding current employee if editing)
+            const existingEmployee = employees.find(emp => emp.dni === dni);
+            if (existingEmployee && (!editingEmployeeId || existingEmployee.id !== editingEmployeeId)) {
+                showNotification('Ya existe un empleado con este DNI/NIE', 'error');
+                return;
+            }
+
+            // Check for duplicate access code (excluding current employee if editing)
+            const existingCode = employees.find(emp => emp.accessCode === accessCode);
+            if (existingCode && (!editingEmployeeId || existingCode.id !== editingEmployeeId)) {
+                showNotification('Ya existe un empleado con este código de acceso', 'error');
+                return;
+            }
+
+            if (editingEmployeeId) {
+                // Update existing employee
+                const employee = employees.find(emp => emp.id === editingEmployeeId);
+                if (employee) {
+                    employee.name = name;
+                    employee.lastName = lastName;
+                    employee.dni = dni;
+                    employee.position = document.getElementById('employeePosition').value.trim() || 'Sin especificar';
+                    employee.startDate = document.getElementById('employeeStartDate').value || employee.startDate;
+                    employee.accessCode = accessCode;
+                    employee.avatar = name.charAt(0) + lastName.charAt(0);
+                    
+                    // Update all time records with new employee name
+                    timeRecords.forEach(record => {
+                        if (record.employeeId === editingEmployeeId) {
+                            record.employeeName = `${name} ${lastName}`;
+                        }
+                    });
+                    saveTimeRecords();
+                }
+                showNotification('Empleado actualizado correctamente', 'success');
+            } else {
+                // Create new employee
+                const employee = {
+                    id: Date.now(),
+                    name: name,
+                    lastName: lastName,
+                    dni: dni,
+                    position: document.getElementById('employeePosition').value.trim() || 'Sin especificar',
+                    startDate: document.getElementById('employeeStartDate').value || formatDate(new Date()),
+                    status: 'Activo',
+                    avatar: name.charAt(0) + lastName.charAt(0),
+                    accessCode: accessCode
+                };
+                employees.push(employee);
+                showNotification('Empleado añadido correctamente', 'success');
+            }
+
+            saveEmployees();
+            populateSelects();
+            loadEmployees();
+            loadDashboard();
+            hideEmployeeModal();
+        }
+
+        function showRecordModal() {
+            document.getElementById('recordModal').classList.remove('hidden');
+            document.getElementById('recordModal').classList.add('flex');
+            
+            if (!editingRecordId) {
+                document.getElementById('recordDate').value = formatDate(new Date());
+                document.querySelector('#recordModal .gradient-bg h3').textContent = 'Registro Manual';
+            }
+        }
+
+        function hideRecordModal() {
+            document.getElementById('recordModal').classList.add('hidden');
+            document.getElementById('recordModal').classList.remove('flex');
+            document.getElementById('recordForm').reset();
+            editingRecordId = null;
+            document.querySelector('#recordModal .gradient-bg h3').textContent = 'Registro Manual';
+        }
+
+        function saveManualRecord() {
+            const employeeId = document.getElementById('recordEmployee').value;
+            const date = document.getElementById('recordDate').value;
+            const timeIn = document.getElementById('recordTimeIn').value;
+            const timeOut = document.getElementById('recordTimeOut').value;
+
+            if (!employeeId || !date) {
+                showNotification('Complete los campos obligatorios', 'error');
+                return;
+            }
+
+            // Validate time logic
+            if (timeIn && timeOut && timeIn >= timeOut) {
+                showNotification('La hora de salida debe ser posterior a la de entrada', 'error');
+                return;
+            }
+
+            const employee = employees.find(emp => emp.id == employeeId);
+            
+            if (editingRecordId) {
+                // Update existing record
+                const record = timeRecords.find(r => r.id === editingRecordId);
+                if (record) {
+                    record.employeeId = parseInt(employeeId);
+                    record.employeeName = `${employee.name} ${employee.lastName}`;
+                    record.date = date;
+                    record.timeIn = timeIn || null;
+                    record.timeOut = timeOut || null;
+                    record.totalHours = timeIn && timeOut ? calculateHours(timeIn, timeOut) : 0;
+                    record.notes = document.getElementById('recordNotes').value;
+                }
+                showNotification('Registro actualizado correctamente', 'success');
+            } else {
+                // Check for duplicate record
+                const existingRecord = timeRecords.find(r => 
+                    r.employeeId == employeeId && r.date === date && r.id !== editingRecordId
+                );
+                
+                if (existingRecord) {
+                    showNotification('Ya existe un registro para este empleado en esta fecha', 'error');
+                    return;
+                }
+
+                // Create new record
+                const record = {
+                    id: Date.now(),
+                    employeeId: parseInt(employeeId),
+                    employeeName: `${employee.name} ${employee.lastName}`,
+                    date: date,
+                    timeIn: timeIn || null,
+                    timeOut: timeOut || null,
+                    totalHours: timeIn && timeOut ? calculateHours(timeIn, timeOut) : 0,
+                    notes: document.getElementById('recordNotes').value
+                };
+                timeRecords.push(record);
+                showNotification('Registro añadido correctamente', 'success');
+            }
+
+            saveTimeRecords();
+            loadTimeRecords();
+            loadDashboard();
+            hideRecordModal();
+        }
+
+        function generateReport(e) {
+            e.preventDefault();
+            
+            const employeeId = document.getElementById('reportEmployee').value;
+            const startDate = document.getElementById('reportStartDate').value;
+            const endDate = document.getElementById('reportEndDate').value;
+
+            if (!startDate || !endDate) {
+                showNotification('Seleccione el rango de fechas', 'error');
+                return;
+            }
+
+            if (startDate > endDate) {
+                showNotification('La fecha de inicio debe ser anterior a la fecha de fin', 'error');
+                return;
+            }
+
+            let reportRecords = timeRecords.filter(record => {
+                const recordDate = record.date;
+                return recordDate >= startDate && recordDate <= endDate;
+            });
+
+            if (employeeId) {
+                reportRecords = reportRecords.filter(record => record.employeeId == employeeId);
+                const employee = employees.find(emp => emp.id == employeeId);
+                var reportTitle = `Informe de ${employee.name} ${employee.lastName}`;
+            } else {
+                var reportTitle = 'Informe General de Empleados';
+            }
+
+            // Calculate statistics
+            const totalHours = reportRecords.reduce((sum, record) => sum + (record.totalHours || 0), 0);
+            const totalDays = new Set(reportRecords.map(r => r.date)).size;
+            const avgHoursPerDay = totalDays > 0 ? (totalHours / totalDays).toFixed(1) : 0;
+            const employeesInReport = new Set(reportRecords.map(r => r.employeeId)).size;
+
+            // Generate report HTML
+            const reportHTML = `
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-xl">
+                        <h3 class="text-2xl font-bold mb-2">${reportTitle}</h3>
+                        <p class="opacity-90">Período: ${formatDateDisplay(startDate)} - ${formatDateDisplay(endDate)}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-xl text-center">
+                            <div class="text-2xl font-bold text-blue-600">${totalHours.toFixed(1)}h</div>
+                            <div class="text-sm text-gray-600">Total Horas</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-xl text-center">
+                            <div class="text-2xl font-bold text-green-600">${totalDays}</div>
+                            <div class="text-sm text-gray-600">Días Trabajados</div>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-xl text-center">
+                            <div class="text-2xl font-bold text-purple-600">${avgHoursPerDay}h</div>
+                            <div class="text-sm text-gray-600">Promedio Diario</div>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-xl text-center">
+                            <div class="text-2xl font-bold text-yellow-600">${employeesInReport}</div>
+                            <div class="text-sm text-gray-600">Empleados</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 bg-gray-50 border-b">
+                            <h4 class="font-bold text-gray-800">Detalle de Registros</h4>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Empleado</th>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Fecha</th>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Entrada</th>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Salida</th>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    ${reportRecords.map(record => `
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3 text-sm">${record.employeeName}</td>
+                                            <td class="px-4 py-3 text-sm">${formatDateDisplay(record.date)}</td>
+                                            <td class="px-4 py-3 text-sm font-mono">${record.timeIn || '-'}</td>
+                                            <td class="px-4 py-3 text-sm font-mono">${record.timeOut || '-'}</td>
+                                            <td class="px-4 py-3 text-sm font-bold">${record.totalHours ? record.totalHours + 'h' : '-'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="exportReportCSV()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors">
+                            📊 Exportar CSV
+                        </button>
+                        <button onclick="printReport()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                            🖨️ Imprimir
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('reportResults').innerHTML = reportHTML;
+            showNotification('Informe generado correctamente', 'success');
+        }
+
+        window.exportReportCSV = function() {
+            const employeeId = document.getElementById('reportEmployee').value;
+            const startDate = document.getElementById('reportStartDate').value;
+            const endDate = document.getElementById('reportEndDate').value;
+
+            let reportRecords = timeRecords.filter(record => {
+                const recordDate = record.date;
+                return recordDate >= startDate && recordDate <= endDate;
+            });
+
+            if (employeeId) {
+                reportRecords = reportRecords.filter(record => record.employeeId == employeeId);
+            }
+
+            const csvContent = generateCSV(reportRecords);
+            downloadCSV(csvContent, `informe_${startDate}_${endDate}.csv`);
+            showNotification('Informe exportado correctamente', 'success');
+        };
+
+        window.printReport = function() {
+            const reportContent = document.getElementById('reportResults').innerHTML;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Informe de Control Horario</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f2f2f2; }
+                            .stats { display: flex; gap: 20px; margin: 20px 0; }
+                            .stat-card { border: 1px solid #ddd; padding: 15px; border-radius: 5px; text-align: center; }
+                            @media print { button { display: none; } }
+                        </style>
+                    </head>
+                    <body>
+                        ${reportContent}
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        };
+
+        // Utility Functions
+        function populateSelects() {
+            const selects = [
+                'employeeSelect',
+                'clockEmployeeSelect', 
+                'filterEmployee',
+                'recordEmployee',
+                'reportEmployee'
+            ];
+
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+
+                // Clear existing options except first
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+
+                employees.forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee.id;
+                    option.textContent = `${employee.name} ${employee.lastName}`;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        function calculateHours(timeIn, timeOut) {
+            if (!timeIn || !timeOut) return 0;
+            
+            const [inHours, inMinutes] = timeIn.split(':').map(Number);
+            const [outHours, outMinutes] = timeOut.split(':').map(Number);
+            
+            const inTime = inHours * 60 + inMinutes;
+            const outTime = outHours * 60 + outMinutes;
+            
+            const diffMinutes = outTime - inTime;
+            return Math.round((diffMinutes / 60) * 100) / 100;
+        }
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function formatDateDisplay(dateString) {
+            return new Date(dateString + 'T00:00:00').toLocaleDateString('es-ES');
+        }
+
+        function getEmployeeAvatar(employeeId) {
+            const employee = employees.find(emp => emp.id == employeeId);
+            return employee ? employee.avatar || (employee.name.charAt(0) + employee.lastName.charAt(0)) : '??';
+        }
+
+        function getStatusClass(record) {
+            if (!record.timeIn) return 'bg-gray-100 text-gray-800';
+            if (!record.timeOut) return 'bg-yellow-100 text-yellow-800';
+            return 'bg-green-100 text-green-800';
+        }
+
+        function getStatusText(record) {
+            if (!record.timeIn) return 'Sin entrada';
+            if (!record.timeOut) return 'En curso';
+            return 'Completado';
+        }
+
+        function setDefaultDates() {
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            const startDateInputs = ['filterStartDate', 'reportStartDate'];
+            const endDateInputs = ['filterEndDate', 'reportEndDate'];
+            
+            startDateInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = formatDate(firstDay);
+            });
+            
+            endDateInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = formatDate(today);
+            });
+        }
+
+        function saveEmployees() {
+            localStorage.setItem('employees', JSON.stringify(employees));
+        }
+
+        function saveTimeRecords() {
+            localStorage.setItem('timeRecords', JSON.stringify(timeRecords));
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white font-medium slide-up ${
+                type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        function logout() {
+            currentUser = null;
+            selectedUserType = null;
+            loginScreen.classList.remove('hidden');
+            mainApp.classList.add('hidden');
+            document.getElementById('loginForm').reset();
+            document.getElementById('adminLogin').classList.add('hidden');
+            document.getElementById('employeeLogin').classList.add('hidden');
+            document.getElementById('employeeCode').value = '';
+            document.querySelectorAll('.user-type-btn').forEach(btn => {
+                btn.classList.remove('border-purple-500', 'bg-purple-50');
+                btn.classList.add('border-gray-200');
+            });
+        }
+
+        // Global functions for actions
+        let editingRecordId = null;
+        let editingEmployeeId = null;
+        let currentFilters = {};
+
+        window.editRecord = function(recordId) {
+            const record = timeRecords.find(r => r.id === recordId);
+            if (!record) return;
+
+            editingRecordId = recordId;
+            
+            // Populate modal with existing data
+            document.getElementById('recordEmployee').value = record.employeeId;
+            document.getElementById('recordDate').value = record.date;
+            document.getElementById('recordTimeIn').value = record.timeIn || '';
+            document.getElementById('recordTimeOut').value = record.timeOut || '';
+            document.getElementById('recordNotes').value = record.notes || '';
+            
+            // Change modal title
+            document.querySelector('#recordModal .gradient-bg h3').textContent = 'Editar Registro';
+            
+            showRecordModal();
+        };
+
+        window.deleteRecord = function(recordId) {
+            showCustomConfirm(
+                '¿Eliminar Registro?',
+                '¿Está seguro de que desea eliminar este registro? Esta acción no se puede deshacer.',
+                () => {
+                    timeRecords = timeRecords.filter(record => record.id !== recordId);
+                    saveTimeRecords();
+                    loadTimeRecords();
+                    loadDashboard();
+                    showNotification('Registro eliminado correctamente', 'success');
+                }
+            );
+        };
+
+        window.editEmployee = function(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            if (!employee) return;
+
+            editingEmployeeId = employeeId;
+            
+            // Populate modal with existing data
+            document.getElementById('employeeName').value = employee.name;
+            document.getElementById('employeeLastName').value = employee.lastName;
+            document.getElementById('employeeDNI').value = employee.dni;
+            document.getElementById('employeePosition').value = employee.position;
+            document.getElementById('employeeStartDate').value = employee.startDate;
+            document.getElementById('employeeAccessCode').value = employee.accessCode || '';
+            
+            // Change modal title
+            document.querySelector('#employeeModal .gradient-bg h3').textContent = 'Editar Empleado';
+            
+            showEmployeeModal();
+        };
+
+        window.toggleEmployeeStatus = function(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            if (!employee) return;
+
+            const newStatus = employee.status === 'Activo' ? 'Inactivo' : 'Activo';
+            const action = newStatus === 'Activo' ? 'activar' : 'desactivar';
+            
+            showCustomConfirm(
+                `¿${action.charAt(0).toUpperCase() + action.slice(1)} Empleado?`,
+                `¿Está seguro de que desea ${action} a ${employee.name} ${employee.lastName}?`,
+                () => {
+                    employee.status = newStatus;
+                    saveEmployees();
+                    loadEmployees();
+                    populateSelects();
+                    loadDashboard();
+                    showNotification(`Empleado ${action}do correctamente`, 'success');
+                }
+            );
+        };
+
+        window.applyFilters = function() {
+            const employeeId = document.getElementById('filterEmployee').value;
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+
+            currentFilters = {
+                employeeId: employeeId || null,
+                startDate: startDate || null,
+                endDate: endDate || null
+            };
+
+            loadTimeRecords();
+            showNotification('Filtros aplicados', 'success');
+        };
+
+        window.clearFilters = function() {
+            document.getElementById('filterEmployee').value = '';
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            currentFilters = {};
+            loadTimeRecords();
+            showNotification('Filtros eliminados', 'success');
+        };
+
+        window.exportRecords = function() {
+            const filteredRecords = getFilteredRecords();
+            const csvContent = generateCSV(filteredRecords);
+            downloadCSV(csvContent, 'registros_horarios.csv');
+            showNotification('Registros exportados correctamente', 'success');
+        };
+
+        window.loadReports = function() {
+            loadQuickStats();
+        };
+
+        // Advanced filtering function
+        function getFilteredRecords() {
+            let filtered = [...timeRecords];
+
+            if (currentFilters.employeeId) {
+                filtered = filtered.filter(record => record.employeeId == currentFilters.employeeId);
+            }
+
+            if (currentFilters.startDate) {
+                filtered = filtered.filter(record => record.date >= currentFilters.startDate);
+            }
+
+            if (currentFilters.endDate) {
+                filtered = filtered.filter(record => record.date <= currentFilters.endDate);
+            }
+
+            return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+
+        // CSV Export functionality
+        function generateCSV(records) {
+            const headers = ['Empleado', 'Fecha', 'Entrada', 'Salida', 'Total Horas', 'Observaciones'];
+            const csvRows = [headers.join(',')];
+
+            records.forEach(record => {
+                const row = [
+                    `"${record.employeeName}"`,
+                    record.date,
+                    record.timeIn || '',
+                    record.timeOut || '',
+                    record.totalHours || 0,
+                    `"${record.notes || ''}"`
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            return csvRows.join('\n');
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Custom confirmation dialog
+        function showCustomConfirm(title, message, onConfirm) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl max-w-md w-full slide-up">
+                    <div class="gradient-bg text-white p-6 rounded-t-2xl">
+                        <h3 class="text-xl font-bold">${title}</h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-700 mb-6">${message}</p>
+                        <div class="flex justify-end space-x-3">
+                            <button id="cancelConfirm" class="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                                Cancelar
+                            </button>
+                            <button id="acceptConfirm" class="btn-primary text-white px-6 py-2 rounded-lg">
+                                Confirmar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            modal.querySelector('#cancelConfirm').addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            modal.querySelector('#acceptConfirm').addEventListener('click', () => {
+                document.body.removeChild(modal);
+                onConfirm();
+            });
+
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
+        }
+
+        // Load quick statistics
+        function loadQuickStats() {
+            const thisMonth = new Date();
+            const firstDay = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 1);
+            const lastDay = new Date(thisMonth.getFullYear(), thisMonth.getMonth() + 1, 0);
+            
+            const monthRecords = timeRecords.filter(record => {
+                const recordDate = new Date(record.date);
+                return recordDate >= firstDay && recordDate <= lastDay;
+            });
+
+            const totalHours = monthRecords.reduce((sum, record) => sum + (record.totalHours || 0), 0);
+            const avgHoursPerDay = monthRecords.length > 0 ? (totalHours / monthRecords.length).toFixed(1) : 0;
+            const daysWorked = new Set(monthRecords.map(r => r.date)).size;
+            const activeEmployees = employees.filter(emp => emp.status === 'Activo').length;
+
+            document.getElementById('quickStats').innerHTML = `
+                <div class="bg-blue-50 p-4 rounded-xl">
+                    <div class="text-2xl font-bold text-blue-600">${totalHours.toFixed(1)}h</div>
+                    <div class="text-sm text-gray-600">Horas Este Mes</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-xl">
+                    <div class="text-2xl font-bold text-green-600">${avgHoursPerDay}h</div>
+                    <div class="text-sm text-gray-600">Promedio Diario</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-xl">
+                    <div class="text-2xl font-bold text-purple-600">${daysWorked}</div>
+                    <div class="text-sm text-gray-600">Días Trabajados</div>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-xl">
+                    <div class="text-2xl font-bold text-yellow-600">${activeEmployees}</div>
+                    <div class="text-sm text-gray-600">Empleados Activos</div>
+                </div>
+            `;
+        }
+
+        // Inspection functions
+        function loadInspection() {
+            loadInspectionEmployees();
+        }
+
+        function loadInspectionEmployees() {
+            const container = document.getElementById('inspectionEmployeesList');
+            if (!container) return;
+
+            const activeEmployees = employees.filter(emp => emp.status === 'Activo');
+
+            container.innerHTML = activeEmployees.map(employee => {
+                // Get all records for this employee
+                const employeeRecords = timeRecords
+                    .filter(record => record.employeeId === employee.id)
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                const totalHours = employeeRecords.reduce((sum, record) => sum + (record.totalHours || 0), 0);
+                const totalDays = employeeRecords.length;
+                const avgHours = totalDays > 0 ? (totalHours / totalDays).toFixed(1) : 0;
+
+                // Get this month's hours
+                const thisMonth = new Date();
+                const firstDay = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 1);
+                const monthRecords = employeeRecords.filter(record => {
+                    const recordDate = new Date(record.date);
+                    return recordDate >= firstDay;
+                });
+                const monthHours = monthRecords.reduce((sum, record) => sum + (record.totalHours || 0), 0);
+
+                return `
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-blue-300 transition-colors">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold">${employee.avatar}</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">${employee.name} ${employee.lastName}</h4>
+                                <p class="text-sm text-gray-600">${employee.position}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 mb-4">
+                            <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                <div class="text-2xl font-bold text-blue-600">${totalHours.toFixed(1)}h</div>
+                                <div class="text-xs text-gray-600">Total Horas</div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-green-50 p-2 rounded text-center">
+                                    <div class="text-lg font-bold text-green-600">${monthHours.toFixed(1)}h</div>
+                                    <div class="text-xs text-gray-600">Este Mes</div>
+                                </div>
+                                <div class="bg-purple-50 p-2 rounded text-center">
+                                    <div class="text-lg font-bold text-purple-600">${avgHours}h</div>
+                                    <div class="text-xs text-gray-600">Promedio</div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-sm text-gray-600 text-center">
+                                <span class="font-medium">${totalDays}</span> días registrados
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setInspectionDefaultDates() {
+            const today = new Date();
+            const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, today.getDate());
+            
+            document.getElementById('inspectionStartDate').value = formatDate(threeMonthsAgo);
+            document.getElementById('inspectionEndDate').value = formatDate(today);
+        }
+
+        function generateOfficialInspectionReport() {
+            const startDate = document.getElementById('inspectionStartDate').value;
+            const endDate = document.getElementById('inspectionEndDate').value;
+
+            if (!startDate || !endDate) {
+                showNotification('Seleccione el período de inspección', 'error');
+                return;
+            }
+
+            if (startDate > endDate) {
+                showNotification('La fecha de inicio debe ser anterior a la fecha de fin', 'error');
+                return;
+            }
+
+            const inspectionRecords = timeRecords.filter(record => {
+                return record.date >= startDate && record.date <= endDate;
+            });
+
+            const reportHTML = generateOfficialReportHTML(inspectionRecords, startDate, endDate);
+            document.getElementById('inspectionReportContent').innerHTML = reportHTML;
+            document.getElementById('officialInspectionReport').classList.remove('hidden');
+            
+            // Scroll to report
+            document.getElementById('officialInspectionReport').scrollIntoView({ behavior: 'smooth' });
+            
+            showNotification('Informe oficial generado correctamente', 'success');
+        }
+
+        function generateOfficialReportHTML(records, startDate, endDate) {
+            const companyInfo = {
+                name: 'HAPPY HOSTAL CARRALES',
+                cif: 'B12345678',
+                address: 'Calle Ejemplo, 123, 28001 Madrid',
+                phone: '+34 912 345 678'
+            };
+
+            const employeeStats = {};
+            
+            // Calculate statistics per employee
+            records.forEach(record => {
+                if (!employeeStats[record.employeeId]) {
+                    const employee = employees.find(emp => emp.id === record.employeeId);
+                    employeeStats[record.employeeId] = {
+                        employee: employee,
+                        totalHours: 0,
+                        totalDays: 0,
+                        records: []
+                    };
+                }
+                
+                employeeStats[record.employeeId].totalHours += record.totalHours || 0;
+                employeeStats[record.employeeId].totalDays += 1;
+                employeeStats[record.employeeId].records.push(record);
+            });
+
+            const totalCompanyHours = Object.values(employeeStats).reduce((sum, stat) => sum + stat.totalHours, 0);
+            const totalEmployees = Object.keys(employeeStats).length;
+
+            return `
+                <div class="mb-8">
+                    <div class="grid grid-cols-2 gap-8 mb-6">
+                        <div>
+                            <h3 class="font-bold text-lg mb-3">DATOS DE LA EMPRESA</h3>
+                            <div class="space-y-1 text-sm">
+                                <p><strong>Razón Social:</strong> ${companyInfo.name}</p>
+                                <p><strong>CIF:</strong> ${companyInfo.cif}</p>
+                                <p><strong>Dirección:</strong> ${companyInfo.address}</p>
+                                <p><strong>Teléfono:</strong> ${companyInfo.phone}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg mb-3">PERÍODO DE INSPECCIÓN</h3>
+                            <div class="space-y-1 text-sm">
+                                <p><strong>Fecha Inicio:</strong> ${formatDateDisplay(startDate)}</p>
+                                <p><strong>Fecha Fin:</strong> ${formatDateDisplay(endDate)}</p>
+                                <p><strong>Fecha Generación:</strong> ${formatDateDisplay(formatDate(new Date()))}</p>
+                                <p><strong>Total Empleados:</strong> ${totalEmployees}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="font-bold text-lg mb-4">RESUMEN EJECUTIVO</h3>
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="bg-blue-50 p-4 rounded text-center">
+                            <div class="text-2xl font-bold text-blue-600">${totalCompanyHours.toFixed(1)}h</div>
+                            <div class="text-sm text-gray-600">Total Horas Registradas</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded text-center">
+                            <div class="text-2xl font-bold text-green-600">${totalEmployees}</div>
+                            <div class="text-sm text-gray-600">Empleados Activos</div>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded text-center">
+                            <div class="text-2xl font-bold text-purple-600">${records.length}</div>
+                            <div class="text-sm text-gray-600">Registros Totales</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="font-bold text-lg mb-4">DETALLE POR EMPLEADO</h3>
+                    ${Object.values(employeeStats).map(stat => `
+                        <div class="border border-gray-300 rounded-lg p-4 mb-4">
+                            <div class="grid grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <h4 class="font-bold">${stat.employee.name} ${stat.employee.lastName}</h4>
+                                    <p class="text-sm text-gray-600">DNI: ${stat.employee.dni}</p>
+                                    <p class="text-sm text-gray-600">Puesto: ${stat.employee.position}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-lg font-bold text-blue-600">${stat.totalHours.toFixed(1)} horas</p>
+                                    <p class="text-sm text-gray-600">${stat.totalDays} días registrados</p>
+                                    <p class="text-sm text-gray-600">Promedio: ${(stat.totalHours / stat.totalDays).toFixed(1)}h/día</p>
+                                </div>
+                            </div>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-xs">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-2 py-1 text-left">Fecha</th>
+                                            <th class="px-2 py-1 text-left">Entrada</th>
+                                            <th class="px-2 py-1 text-left">Salida</th>
+                                            <th class="px-2 py-1 text-left">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${stat.records.sort((a, b) => new Date(a.date) - new Date(b.date)).map(record => `
+                                            <tr class="border-b">
+                                                <td class="px-2 py-1">${formatDateDisplay(record.date)}</td>
+                                                <td class="px-2 py-1">${record.timeIn || '-'}</td>
+                                                <td class="px-2 py-1">${record.timeOut || '-'}</td>
+                                                <td class="px-2 py-1 font-medium">${record.totalHours ? record.totalHours + 'h' : '-'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-300">
+                    <div class="text-center text-sm text-gray-600">
+                        <p class="mb-2">Este informe ha sido generado automáticamente por el sistema de control horario</p>
+                        <p class="mb-2">conforme a la normativa española vigente (Real Decreto-ley 8/2019)</p>
+                        <p class="font-medium">Fecha y hora de generación: ${new Date().toLocaleString('es-ES')}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Global functions for inspection
+        window.downloadEmployeeReport = function(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            if (!employee) return;
+
+            const employeeRecords = timeRecords
+                .filter(record => record.employeeId === employeeId)
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const csvContent = generateEmployeeCSV(employee, employeeRecords);
+            downloadCSV(csvContent, `informe_${employee.name}_${employee.lastName}.csv`);
+            showNotification(`Informe de ${employee.name} descargado`, 'success');
+        };
+
+        window.downloadOfficialReport = function() {
+            const reportContent = document.getElementById('officialInspectionReport').innerHTML;
+            
+            // Create a more formal PDF-ready version
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Informe Oficial de Control Horario</title>
+                    <style>
+                        body { font-family: 'Times New Roman', serif; margin: 20px; line-height: 1.4; }
+                        h2, h3 { color: #333; }
+                        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+                        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; font-size: 12px; }
+                        th { background-color: #f5f5f5; font-weight: bold; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .summary { display: flex; justify-content: space-around; margin: 20px 0; }
+                        .stat-box { border: 1px solid #ddd; padding: 15px; text-align: center; }
+                        @media print { 
+                            body { margin: 0; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${reportContent}
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([printContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `informe_oficial_${formatDate(new Date())}.html`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('Informe oficial descargado', 'success');
+        };
+
+        window.printOfficialReport = function() {
+            const reportContent = document.getElementById('inspectionReportContent').innerHTML;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Informe Oficial de Control Horario</title>
+                        <style>
+                            body { font-family: 'Times New Roman', serif; margin: 20px; line-height: 1.4; }
+                            h2, h3 { color: #333; page-break-after: avoid; }
+                            table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+                            th, td { border: 1px solid #ddd; padding: 6px; text-align: left; font-size: 11px; }
+                            th { background-color: #f5f5f5; font-weight: bold; }
+                            .header { text-align: center; margin-bottom: 30px; }
+                            @media print { 
+                                body { margin: 0; }
+                                .page-break { page-break-before: always; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>INFORME OFICIAL DE CONTROL HORARIO</h1>
+                            <p>Conforme a la normativa española de registro de jornada laboral</p>
+                            <p><small>Real Decreto-ley 8/2019, de 8 de marzo - Artículo 34.9 del Estatuto de los Trabajadores</small></p>
+                        </div>
+                        ${reportContent}
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        };
+
+        function generateEmployeeCSV(employee, records) {
+            const headers = ['Fecha', 'Entrada', 'Salida', 'Total Horas', 'Observaciones'];
+            const csvRows = [
+                `"INFORME INDIVIDUAL - ${employee.name} ${employee.lastName}"`,
+                `"DNI: ${employee.dni}"`,
+                `"Puesto: ${employee.position}"`,
+                `"Fecha Alta: ${formatDateDisplay(employee.startDate)}"`,
+                '',
+                headers.join(',')
+            ];
+
+            records.forEach(record => {
+                const row = [
+                    record.date,
+                    record.timeIn || '',
+                    record.timeOut || '',
+                    record.totalHours || 0,
+                    `"${record.notes || ''}"`
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            // Add summary
+            const totalHours = records.reduce((sum, record) => sum + (record.totalHours || 0), 0);
+            const avgHours = records.length > 0 ? (totalHours / records.length).toFixed(1) : 0;
+            
+            csvRows.push('');
+            csvRows.push(`"RESUMEN"`);
+            csvRows.push(`"Total registros: ${records.length}"`);
+            csvRows.push(`"Total horas: ${totalHours.toFixed(1)}"`);
+            csvRows.push(`"Promedio diario: ${avgHours}h"`);
+
+            return csvRows.join('\n');
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e23c9891b2f46a',t:'MTc2MDM5NDE1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
